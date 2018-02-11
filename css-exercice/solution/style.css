@@ -1,0 +1,28 @@
+body {
+  padding-left: 3em;
+  padding-right:3em;
+  font-family: Georgia, "Times New Roman",Times, serif;
+  color: #eed;
+  background-color: #33c }
+ul {
+  padding: 0;
+  margin: 0;
+  top: 2em;
+  left: 1em;
+  width: 9em }
+h1 {
+  font-family: Helvetica, Geneva, Arial,
+        SunSans-Regular, sans-serif }
+ul li {
+  background: white;
+  color:#d66;
+  margin: 0.5em 0;
+  padding: 0.3em;
+  border-left: 5px solid #aaa }
+a:link {
+  color: yellow }
+a:visited {
+  color: #ddd }
+img{
+	display:block;
+}
