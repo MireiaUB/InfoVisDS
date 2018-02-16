@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Datajoins (3)</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+    .chart {
+      background: lightgray;
+      border: 1px solid black;
+      min-width: 200px;
+      min-height: 350px;
+    }
+	rect{
+		fill:maroon;
+		x:10;
+		height:7px;
+	}
+  </style>
+</head>
+<body>
+
+  <div id="chart">
+  </div>
+  <button onclick="updateScores()">
+  Update Scores
+  </button>
+  <button onclick="addFelix()">
+  Add Felix
+  </button>
+  <button onclick="removeSecond()">
+  Remove second element
+  </button>
+  <script type="text/javascript">
+var scores = [
+  { name: 'Alice', score: 96 },
+  { name: 'Billy', score: 83 },
+  { name: 'Cindy', score: 91 },
+  { name: 'David', score: 96 },
+  { name: 'Emily', score: 88 }
+	];
+	
+svgg=d3.select("#chart")
+  .append("svg")
+  .append("g");
+
+function render(){	
+
+var students = svgg
+  .selectAll('rect')
+  .data(scores, function(d){
+	return d.name;
+  });
+  
+students
+  .attr('width',function(d){
+	return d.score;
+  })
+  .attr('fill','blue');
+ 
+students.enter()
+  .append('rect')
+  .attr('y',(function (d,i) {
+    return 50+i*10;
+  })
+  )
+  .attr('width',function(d){
+	return d.score;
+  })
+
+students.exit()
+	.remove('rect');
+  
+};	
+
+render();  
+
+function updateScores(){
+	scores = [
+		{ name: 'David', score: 78 },
+		{ name: 'Emily', score: 85 }
+	];
+	render();
+};
+
+function addFelix(){
+	scores.push({name: 'Felix',score: 77});
+	render();
+};
+
+function removeSecond(){
+	scores.splice(1,1);
+	render();
+};
+
+console.log("scores",scores);
+
+  
+  </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Datajoins (2)</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+    .chart {
+      background: lightgray;
+      border: 1px solid black;
+      min-width: 200px;
+      min-height: 350px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="chart">
+  </div>
+  <button onclick="updateScores()" onselect="updateScores()">
+  Update Scores
+  </button>
+  <script type="text/javascript">
+var scores = [
+  { name: 'Alice', score: 96 },
+  { name: 'Billy', score: 83 },
+  { name: 'Cindy', score: 91 },
+  { name: 'David', score: 96 },
+  { name: 'Emily', score: 88 }
+	];
+
+function render(){	
+
+var students = d3.select('#chart')
+  .selectAll('p')
+  .data(scores);
+  
+students
+  .text(function (d) {
+    return d.name+' mark: '+d.score;
+  })
+  .style('color','blue');
+
+ 
+students.enter()
+  .append('p')
+  .text(function (d) {
+    return d.name+' mark: '+d.score;
+  })
+  .style('color','green');
+
+students.exit()
+//	.remove('p');
+	.style('text-decoration','line-through');
+  
+  
+};	
+
+
+
+render();  
+console.log("chart",d3.select('#chart').selectAll('p').nodes());
+
+function updateScores(){
+	scores = [
+		{ name: 'David', score: 78 },
+		{ name: 'Emily', score: 85 }
+	];
+	render();
+};
+
+console.log("scores",scores);
+
+  
+  </script>
+</body>
+</html>
