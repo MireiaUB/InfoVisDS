@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Catalonia counties</title>
+  <style>
+  .boundary {
+    fill: #ddd;
+    stroke: #888;
+    stroke-linejoin: round;
+  }
+  svg {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ccc;
+  }
+  </style>
+</head>
+<body>
+  <h1>Catalonia inhabitants</h1>
+  <div id="map"></div>
+  <div id="source">
+	<p>Sources: <a href="https://www.idescat.cat/pub/?id=aec&n=246&lang=en">Institut d’Estadística de Catalunya</a>, <a href="http://www.icgc.cat/es/Administracion-y-empresa/Descargas/Capas-de-geoinformacion/Base-municipal">Institut Cartogràfic i Geològic de Catalunya. Base municipal</a></p>
+  </div>
+  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.5/d3-legend.js"></script>
+  <script>
+ 
+	  var height = 600,
+          width = 900,
+          projection = d3.geoMercator(),
+          catalonia = void 0;
+
+      // Special d3 helper that converts geo coordinates to paths
+      // based on a projection
+      var path = d3.geoPath().projection(projection);
+
+      var svg = d3.select("#map")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+	  
+	  /* The scale */	  
+	  var color = d3.scaleThreshold() 
+			.domain([10000,20000,30000,50000,100000,200000,800000,1500000])
+			.range(["#f7fcfd","#e0ecf4","#bfd3e6","#9ebcda","#8c96c6","#8c6bb1","#88419d","#810f7c","#4d004b"]) //extracted from d3.schemeBuPu
+	
+	  /* The legend */
+	  svg.append("g")
+		.attr("class", "legendQuant")
+		.attr("transform", "translate(20,20)");
+
+	  var legend = d3.legendColor()
+		.labelFormat(d3.format(".0f")) //0 decimals
+		.labels(d3.legendHelpers.thresholdLabels)
+		.scale(color) //reference to our Threshold scale
+		
+	  svg.select(".legendQuant")
+	    .call(legend);
+	  /* end of legend */	
+	  
+	  d3.queue()
+		.defer(d3.json,"comarques.topojson")
+		.defer(d3.csv,"poblacio.csv")
+		.await(function(error,topo,data){ //this will await in queue
+			process(topo,data)			//topo for topographic info, data for metadata
+
+		});
+	  
+      function process(topo,data){ 
+		//topo holds info from comarques.topojson; data holds info from població.csv
+
+		topo.objects['comarques']
+			.geometries.forEach(function(d) { d.id = +d.properties.CODICOMAR;});
+			// CODICOMAR as id
+
+		data.forEach ( function(d) { 
+			//first we create an object with all the values
+			d['CODICOMAR'] = +d['CODICOMAR'],
+			d['NAME'] = d['NAME'],
+			d['INHABITANTS'] = +d['INHABITANTS'];
+		});
+		var dataKV = data.reduce(function(res,el) { 
+			res[el.CODICOMAR] = el; 
+			return res; },{});
+			// then we create a dictionary, with CODICOMAR as key
+
+			
+		
+		console.log("data",data); //cheat variable
+		console.log("dataKV",dataKV); //cheat variable
+		
+        var comarques = topojson.feature(topo, topo.objects.comarques); 
+				//comarques will hold the geometries from the JSON file
+
+		console.log("comarques",comarques); //cheat variable
+
+        // Setup the scale and translate
+        var b, s, t;
+        projection.scale(1).translate([0, 0]); //setup scale and translation
+        var b = path.bounds(comarques); //box of min/max coordinates of geographic data
+		var widthMap =b[1][0] - b[0][0];
+		var heightMap = b[1][1] - b[0][1];
+		var maxScale = Math.max( widthMap / width, heightMap / height);
+
+        var s = .95 / maxScale; //scales every state with svg sizes .95 to left some margin
+        var t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2]; //return the map to the center of the screen
+        projection.scale(s).translate(t); //reset scale and translation
+
+        var map = svg.append('g').attr('class', 'boundary');
+        catalonia = map.selectAll(".comarca") 
+					.data(comarques.features);
+
+
+		var selection = function(d){
+		  d3.selectAll('path').attr('fill-opacity',0.2) //all regions decrease opacity
+		  d3.select('#' + 'cid-'+d.id) 					//our specific region
+		    .transition().duration(500) 				//the change is done in 500ms
+		    .attr('fill-opacity',1); 					//mantains opacity
+		}
+
+					
+        //Enter
+        catalonia.enter()
+         .append('path')
+		   .attr('class',"comarca")
+           .attr('d', path)
+		   .attr('id',function(d){return "cid-" +d.id})
+		   .on("click",selection)
+		   .on("keypress",selection)
+		   .attr("fill", function(d) {
+				return color(dataKV[d.id].INHABITANTS);
+			});
+
+      }; 
+
+  </script>
+</body>

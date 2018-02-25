@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Catalonia counties</title>
+  <style>
+  .boundary {
+    fill: #ddd;
+    stroke: #888;
+    stroke-linejoin: round;
+  }
+  svg {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ccc;
+  }
+  </style>
+</head>
+<body>
+  <h1>Catalonia capitals</h1>
+  <div id="map"></div>
+  <div id="source">
+	<p>Sources: <a href="https://www.idescat.cat/pub/?id=aec&n=246&lang=en">Institut d’Estadística de Catalunya</a>, <a href="http://www.icgc.cat/es/Administracion-y-empresa/Descargas/Capas-de-geoinformacion/Base-municipal">Institut Cartogràfic i Geològic de Catalunya. Base municipal</a>, <a href="https://www.latlong.net">LatLong.net</a></p>
+  </div>
+  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <script>
+ 
+	  var height = 600,
+          width = 900,
+          projection = d3.geoMercator(),
+          catalonia = void 0;
+
+      // Special d3 helper that converts geo coordinates to paths
+      // based on a projection
+      var path = d3.geoPath().projection(projection);
+
+      var svg = d3.select("#map")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+	  
+	  
+	  d3.queue()
+		.defer(d3.json,"comarques.topojson")
+		.defer(d3.csv,"comarques.csv")
+		.await(function(error,topo,data){ //this will await in queue
+			process(topo,data)			//topo for topographic info, data for metadata
+
+		});
+	  
+      function process(topo,data){ 
+		//topo holds info from comarques.topojson; data holds info from població.csv
+
+		topo.objects['comarques']
+			.geometries.forEach(function(d) { d.id = +d.properties.CODICOMAR;});
+			// CODICOMAR as id
+
+		data.forEach ( function(d) { 
+			//first we create an object with all the values
+			d['CODICOMAR'] = +d['CODICOMAR'],
+			d['CODIMUNI'] = +d['CODIMUNI'],
+			d['NAME'] = d['NAME'],
+			d['CAPITAL'] = d['CAPITAL'],
+			d['COORD'] = [+d['LON'],+d['LAT']],
+			d['ALT'] = +d['ALT'],
+			d['INHABITANTS'] = +d['INHABITANTS'];		
+		});
+		var dataKV = data.reduce(function(res,el) { 
+			res[el.CODICOMAR] = el; 
+			return res; },{});
+			// then we create a dictionary, with CODICOMAR as key
+
+		console.log("data",data); //cheat variable
+		console.log("dataKV",dataKV); //cheat variable
+		
+        var comarques = topojson.feature(topo, topo.objects.comarques); 
+				//comarques will hold the geometries from the JSON file
+
+		console.log("comarques",comarques); //cheat variable
+
+        // Setup the scale and translate
+        var b, s, t;
+        projection.scale(1).translate([0, 0]); //setup scale and translation
+        var b = path.bounds(comarques); //box of min/max coordinates of geographic data
+		var widthMap =b[1][0] - b[0][0];
+		var heightMap = b[1][1] - b[0][1];
+		var maxScale = Math.max( widthMap / width, heightMap / height);
+
+        var s = .95 / maxScale; //scales every state with svg sizes .95 to left some margin
+        var t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2]; //return the map to the center of the screen
+        projection.scale(s).translate(t); //reset scale and translation
+
+        var map = svg.append('g').attr('class', 'boundary');
+        catalonia = map.selectAll(".comarca") 
+					.data(comarques.features);
+		
+        //Enter
+        catalonia.enter()
+         .append('path')
+		   .attr('class',"comarca")
+           .attr('d', path)
+		   .attr('id',function(d){return "cid-" +d.id});
+		catalonia.enter()
+			.append('circle')
+			.attr('class',"capitalcomarca")
+			.attr('cx',function(d) {
+				return projection(dataKV[d.id]['COORD'])[0]})
+			.attr('cy',function(d) {
+				return projection(dataKV[d.id]['COORD'])[1]})
+			.attr('r',4)
+			.attr('fill','#4d004b');
+			
+
+      }; 
+
+  </script>
+</body>
