@@ -1,2 +1,3 @@
 # InfoVisDS
-Demos and exercices for InfoVis
+
+Basic element for charts and some example charts. Exercices
