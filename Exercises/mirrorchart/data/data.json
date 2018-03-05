@@ -1,0 +1,81 @@
+{
+	"products": {
+	"a":[{
+				"month": "January",
+				"gains": "215"
+			}, {
+				"month": "February",
+				"gains": "187"
+			}, {
+				"month": "March",
+				"gains": "191"
+			}, {
+				"month": "April",
+				"gains": "154"
+			}, {
+				"month": "May",
+				"gains": "120"
+			}, {
+				"month": "June",
+				"gains": "104"
+			}, {
+				"month": "July",
+				"gains": "96"
+			}, {
+				"month": "August",
+				"gains": "98"
+			}, {
+				"month": "September",
+				"gains": "108"
+			}, {
+				"month": "October",
+				"gains": "137"
+			}, {
+				"month": "November",
+				"gains": "192"
+			}, {
+				"month": "December",
+				"gains": "209"
+			}
+		]
+	,
+	"b":[{
+				"month": "January",
+				"gains": "175"
+			}, {
+				"month": "February",
+				"gains": "156"
+			}, {
+				"month": "March",
+				"gains": "163"
+			}, {
+				"month": "April",
+				"gains": "124"
+			}, {
+				"month": "May",
+				"gains": "109"
+			}, {
+				"month": "June",
+				"gains": "97"
+			}, {
+				"month": "July",
+				"gains": "84"
+			}, {
+				"month": "August",
+				"gains": "88"
+			}, {
+				"month": "September",
+				"gains": "96"
+			}, {
+				"month": "October",
+				"gains": "123"
+			}, {
+				"month": "November",
+				"gains": "161"
+			}, {
+				"month": "December",
+				"gains": "184"
+			}
+		]
+	}
+}

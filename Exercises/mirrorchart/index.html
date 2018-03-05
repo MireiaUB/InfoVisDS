@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mirror chart</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-color.v1.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+</head>
+<body>
+  <svg width="700" height="360">
+  	<g id="wrapper" transform="translate(40, 20)">
+		<g id="a" transform="translate(300,20)">
+		</g>
+		<g id="b" transform="translate(295,20)">
+		</g>	
+  	</g>
+  </svg> 
+  <script >
+
+d3.json('data/data.json',function(error,d){  
+ 
+    if(error) {
+		console.log("problems reading the file");
+		return;}
+
+
+	products = d.products;
+	
+	a=d3.select('#a')
+		.selectAll('rect')
+		.data(products.a)
+		.enter()
+		
+	b=d3.select('#b')
+		.selectAll('rect')
+		.data(products.b)
+		.enter()
+});	
+	
+</script>
+</body>
+</html>

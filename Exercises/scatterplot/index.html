@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>ScatterPlot</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<style type="text/css">
+			circle{
+				fill:green;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="chart">
+		</div>
+		<script type="text/javascript">
+	var margin = {top:0,right:0,bottom:0,left:0},
+	width = 800 -margin.left -margin.right,
+	height = 400 -margin.top -margin.bottom,
+	svg = d3.select(".chart")
+	   .append('svg')
+		   .attr('width',width + margin.left + margin.right)
+		   .attr('height',height + margin.top + margin.bottom)
+		   .attr('style','border: 1px solid blue')
+
+	d3.csv("data/time_scale_data.csv", function(data) {
+
+	var parseDate = d3.timeParse("%Y/%m/%d");
+
+		//start and end dates
+		var startDate = d3.min(data, function(d){
+			return parseDate(d.Date);});
+		
+		
+	});
+			
+	</script>
+</body>
+</html>

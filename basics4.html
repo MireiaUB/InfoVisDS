@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Band scale</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+	rect {
+		fill: orange;
+	}
+  </style>
+</head>
+<body>
+<!-- From https://bl.ocks.org/d3indepth/1aef77d17863e603ff4e84226db5b227 by Peter Cook -->
+  <svg width="700" height="240">
+  	<g id="wrapper" transform="translate(40, 20)">
+  	</g>
+  </svg> 
+  <script >
+var myData = [
+	{day : 'Mon', value: 10},
+	{day : 'Tue', value: 40},
+	{day : 'Wed', value: 30},
+	{day : 'Thu', value: 60},
+	{day : 'Fri', value: 30}
+];  
+
+var bandScale = d3.scaleBand()
+	.domain(['Mon', 'Tue', 'Wed', 'Thu', 'Fri'])
+	.range([0, 200])
+	.paddingInner(0.05);
+
+d3.select('#wrapper')
+	.selectAll('rect')
+	.data(myData)
+	.enter()
+	.append('rect')
+	.attr('y', function(d) {
+		return bandScale(d.day);
+	})
+	.attr('height', bandScale.bandwidth())
+	.attr('width', function(d) {
+		return d.value;
+	});
+
+
+</script>
+</body>
+</html>

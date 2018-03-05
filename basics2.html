@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Time scale</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+	fontFamily: monospace;
+	fontSize: 2 em
+  </style>
+</head>
+<body>
+  <p class="a"></p>
+  <p class="b"></p>
+  <p class="c"></p>
+  <p class="d"></p>
+  <script >
+var timeScale = d3.scaleTime()
+  .domain([new Date(2018, 2, 13), new Date(2018,5,31)])
+  .range([0, 100]);
+  
+  d3.select('p.a')
+	.text("timeScale([new Date(2018, 2, 13)):"+timeScale(new Date(2018, 2, 13)));
+
+  d3.select('p.b')
+	.text("timeScale([new Date(2018, 5, 31)):"+timeScale(new Date(2018, 5, 31)));
+
+  d3.select('p.c')
+	.text("timeScale([new Date(2018, 4, 9)):"+timeScale(new Date(2018, 4, 10)));
+
+  d3.select('p.d')
+	.text("timeScale.invert(50):"+timeScale.invert(50));
+
+	
+</script>
+</body>
+</html>

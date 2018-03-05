@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Color scale</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-color.v1.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  <style>
+	rect {
+		width: 50px;
+	}
+  </style>
+</head>
+<body>
+  <svg width="700" height="240">
+  	<g id="wrapper" transform="translate(40, 20)">
+		<g id="a" transform="translate(0, 0)"> 
+		</g>
+		<g id="b" transform="translate(200, 0)">
+		</g>
+  	</g>
+  </svg> 
+  <script >
+var myData = [
+	{day : 'Mon', value: 10},
+	{day : 'Tue', value: 20},
+	{day : 'Wed', value: 30},
+	{day : 'Thu', value: 40},
+	{day : 'Fri', value: 50}
+];  
+
+var bandScale = d3.scaleBand()
+	.domain(['Mon', 'Tue', 'Wed', 'Thu', 'Fri'])
+	.range([0, 200])
+	.paddingInner(0.05);
+	
+var colorScale = d3.scaleOrdinal()
+	.domain([0,60])
+	.range(d3.schemeBlues[3]); //3 bands
+
+var colorScale2 = d3.scaleSequential(d3.interpolateBlues) //continuous blues
+	.domain([0,60]) 
+	
+d3.select('#a') //in group a the scheme color
+	.selectAll('rect')
+	.data(myData)
+	.enter()
+	.append('rect')
+	.attr('y', function(d) {
+		return bandScale(d.day);
+	})
+	.attr('height', bandScale.bandwidth())
+	.attr('fill', function(d) {
+		return colorScale(d.value);
+	});
+
+d3.select('#b') //in group b the sequential color
+	.selectAll('rect')
+	.data(myData)
+	.enter()
+	.append('rect')
+	.attr('y', function(d) {
+		return bandScale(d.day);
+	})
+	.attr('height', bandScale.bandwidth())
+	.attr('fill', function(d) {
+		return colorScale2(d.value);
+	});
+
+	
+</script>
+</body>
+</html>

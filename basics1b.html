@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Linear scale with clamp</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+	fontFamily: monospace;
+	fontSize: 2 em
+  </style>
+</head>
+<body>
+  <p class="a"></p>
+  <p class="b"></p>
+  <p class="c"></p>
+  <p class="d"></p>
+  <p class="e"></p>
+  <p class="f"></p>
+  <script >
+var linearScale = d3.scaleLinear()
+  .domain([0, 100])
+  .range([0, 600]) //destination
+  .clamp(true); //no bigger than the biggest range; no smaller than the lowest range
+  
+  d3.select('p.a')
+	.text("linearScale(0):"+linearScale(0));
+
+  d3.select('p.b')
+	.text("linearScale(50):"+linearScale(50));
+	
+  d3.select('p.c')
+	.text("linearScale(100):"+linearScale(100));
+	
+  d3.select('p.d')
+	.text("linearScale(150):"+linearScale(150));
+	
+  d3.select('p.e')
+	.text("linearScale(-20):"+linearScale(-20));
+
+  d3.select('p.f')
+	.text("linearScale.invert(300):"+linearScale.invert(300));
+</script>
+</body>
+</html>

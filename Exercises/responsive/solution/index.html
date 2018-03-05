@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mirror chart</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-color.v1.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+</head>
+<body>
+  <svg>
+  	<g id="wrapper" transform="translate(40, 20)">
+		<g id="a" transform="translate(300,20)">
+		</g>
+		<g id="b" transform="translate(295,20)">
+		</g>	
+  	</g>
+  </svg> 
+  <script >
+		
+d3.json('data/data.json',function(error,d){  
+ 
+    if(error) {
+		console.log("problems reading the file");
+		return;}
+
+
+	var bandScale = d3.scaleBand()
+		.domain(['January', 'February', 'March', 'April', 'May','June', 'July', 'August', 'September', 'October', 'November', 'December'])
+		.range([0, 300])
+		.paddingInner(0.05);
+
+	var colorAScale = d3.scaleSequential(d3.interpolateReds)
+		.domain([0,220]);
+		
+	var colorBScale = d3.scaleSequential(d3.interpolateBlues)
+		.domain([0,220]);
+
+	products = d.products;
+	
+	svg = d3.select("svg")
+		.attr("width","700")
+		.attr("height","360")
+		.call(responsivefy);
+	
+	function responsivefy(svg){
+	    var container = d3.select(svg.node().parentNode),
+			width = parseInt(svg.style("width")),
+			height = parseInt(svg.style("height")),
+			aspect = width / height;
+			
+		svg
+			.attr("viewBox","0 0 " + width + " " + height)
+			.attr("preserveAspectRatio","xMinYMid")
+			.call(resize);	
+			
+		function resize(){
+			var targetWidth = parseInt(container.style("width"));
+			svg.attr("width",targetWidth)
+			svg.attr("height",Math.round(targetWidth / aspect));
+		}
+
+		d3.select(window).on("resize."+container.attr("id"),resize);
+
+	}
+
+	
+	d3.select('#wrapper')
+		.append('text')
+		.attr('x',320)
+		.attr('y',10)
+		.text('Product A')
+
+	d3.select('#wrapper')
+		.append('text')
+		.attr('x',200)
+		.attr('y',10)
+		.text('Product B')
+		
+	a =d3.select('#a')
+		.selectAll('rect')
+		.data(products.a)
+		.enter()
+		
+	a	
+		.append('rect')
+		.attr('y', function(d) {
+			return bandScale(d.month);
+		})
+		.attr('height', bandScale.bandwidth())
+		.attr('width', function(d) {
+			return d.gains;
+		})
+		.attr('fill',function(d){
+			return colorAScale(d.gains);
+		});
+
+	a
+		.append('text')
+		.attr('y', function(d) {
+			return bandScale(d.month)+15;
+		})
+		.attr('x',+60)
+		.attr('text-anchor','end')
+		.attr('fill','white')
+		.text(function(d) {
+			return d.gains;
+		});		
+		
+		
+	b=d3.select('#b')
+		.selectAll('rect')
+		.data(products.b)
+		.enter()
+	
+	b
+		.append('rect')
+		.attr('y', function(d) {
+			return bandScale(d.month);
+		})
+		.attr('height', bandScale.bandwidth())
+		.attr('width', function(d) {
+			return d.gains;
+		})
+		.attr('x',function(d) {
+			return 0-d.gains;
+		})
+		.attr('fill',function(d){
+			return colorBScale(d.gains);
+		});
+		
+	b
+		.append('text')
+		.attr('y', function(d) {
+			return bandScale(d.month)+15;
+		})
+		.attr('x',-40)
+		.attr('text-anchor','end')
+		.text(function(d) {
+			return d.gains;
+		});
+
+	b
+		.append('text')
+		.attr('y', function(d) {
+			return bandScale(d.month)+15;
+		})
+		.attr('x',-200)
+		.attr('text-anchor','end')
+		.text(function(d) {
+			return d.month;
+		});
+	
+});	
+	
+</script>
+</body>
+</html>
