@@ -1,0 +1,50 @@
+<!DOCTYPE html> 
+<html> 
+	<head> 
+		<title>Page Title</title> 
+		<style>
+			#main{
+				display:grid;
+				grid-template-columns:40px auto 50px;
+				grid-template-rows: 100px 80% auto
+			}
+			#el1 {grid-column-start:1;
+				  grid-row-start:1;
+				  background-color:green
+			}
+			#el2{grid-column-start:2;
+				  grid-row-start:1;
+				  background-color:blue
+				  }
+			#el3{grid-column-start:3;
+				  grid-row-start:1;
+				  background-color:red
+				  }
+			#el4{grid-column-start:1;
+				  grid-row-start:2;
+				  background-color:orange
+				  }
+			#el5{grid-column-start:2;
+				  grid-column-end:4;
+				  grid-row-start:2;
+				  grid-row-end:4;
+                  background-color:pink
+				 }
+			#el6{grid-column-start:1;
+				  grid-row-start:3;
+                  background-color:yellow
+			}
+		</style>
+	</head> 
+	<body> 
+		<h1>Page Title</h1> 
+		<div id="main">
+			<div id="el1">1</div>
+			<div id="el2">2</div>
+			<div id="el3">3</div>
+			<div id="el4">4</div>
+			<div id="el5">5</div>
+			<div id="el6">6</div>
+		</div>
+	</body> 
+</html> 
