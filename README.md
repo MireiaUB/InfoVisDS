@@ -9,7 +9,7 @@ This is the easiest function and it is very powerful. It is based on CSS propert
 To start with it, I recommend:
 
 - [Complete guide to CSS grids](https://css-tricks.com/snippets/css/complete-guide-grid/)
-- [Grids by example](https://gridbyexample.com/examples/)
+- [Grid by example](https://gridbyexample.com/examples/)
  
 You have also a very simple example in this github to play around:
 
