@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Bar Chart</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+	<!-- call the specific javascript and CSS -->
+    <script src="singleBarChart.js"></script> 
+    <link rel="stylesheet" type="text/css" href="singleBarChart.css">
+	<!-- end call-->
+  </head>
+  <body>
+    <svg id="bar-chart"><!-- we need and svg container with an id to hold the chart -->
+	</svg>
+	<ul> <!-- ONLY DEMO, DO NOT COPY -->
+      <li><a onclick="updateFunction('data1.csv')" href="# ">data1.csv</a></li>
+      <li><a onclick="updateFunction('data2.csv')" href="#">data2.csv</a></li>
+      <li><a onclick="updateFunction('data3.csv')" href="#">data3.csv</a></li>
+	  <!-- if there is data update we can redraw the chart with updateFunction -->
+	</ul> 
+	<ul> <!-- ONLY DEMO, DO NOT COPY -->
+      <li><a onclick="resizeFunction(300,400)" href="# ">300,400</a></li>
+      <li><a onclick="resizeFunction(400,700)" href="#">400,700</a></li>
+	  <!-- if there is a change in size we can redraw the chart with resizeFunction -->
+	</ul> 
+	<div id="csv"></div> <!-- END DEMO -->
+	<script>     
+      var barChart = BarChart() //we do a basic setup of the chart
+        .width(500)
+        .height(500)
+        .x("name")
+        .y("value")
+        .padding(0.1)
+		.xLegend("persons")
+		.yLegend("years");
+
+      d3.csv("data1.csv", parseRow, function (mydata){ 
+	    	//we load the data
+        d3.select("#bar-chart")  //select the svg that will hold the chart
+          .datum(mydata)		 //assign the data
+          .call(barChart);       //call the function generating the chart   
+      });		
+    </script>
+  </body>
+</html>
