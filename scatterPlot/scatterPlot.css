@@ -1,0 +1,62 @@
+body {
+    margin: 0;
+}
+
+.x-axis, .y-axis {
+	font-size:0.5em; 
+	font-family:Arial; 
+	text-anchor:end; 
+}
+
+.x-axis .tick, .y-axis .tick {
+	opacity:1 //0-1
+}
+.x-axis .tick line {
+	stroke:black; //#050505
+}
+.y-axis .tick line {
+	stroke: #000; 
+}
+
+.x-axis path, .x-axis line, .y-axis path, .y-axis line {
+	fill:none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+.dot {
+	stroke: #000
+}
+
+.label{
+	stroke:#000;
+	fill:#000;
+	stroke-width:0.3;
+	font-size:2em;
+	font-family:Garamond,roman;
+	display:visible
+}
+
+.tooltip {
+	background:#fff;
+	opacity:0.3
+}
+
+#colorLegend, #sizeLegend {
+/*	background-color:#fee;*/
+	display:block;
+	margin:0;
+	padding:0;
+	overflow: visible;
+}
+
+#colorLegend .label, #sizeLegend .label{
+	font-size:0.7em;
+	font-family:Arial;
+	stroke-width:0.1
+}
+
+#sizeLegend circle{
+	opacity:0.3
+}
+

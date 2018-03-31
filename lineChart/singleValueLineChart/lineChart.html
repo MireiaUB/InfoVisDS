@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Line Chart</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+	<!-- call the specific javascript and CSS -->
+    <script src="lineChart.js"></script> 
+    <link rel="stylesheet" type="text/css" href="lineChart.css">
+	<!-- end call-->
+  </head>
+  <body>
+    <svg id="line-chart"><!-- we need and svg container with an id to hold the chart -->
+	</svg>
+	<script>
+      var lineChart = lineChart() //we do a basic setup of the chart
+        .width(500)
+        .height(500)
+        .x("employees")
+		.y("revenue") //do not change
+		.xLegend("# of employees")
+		.yLegend("revenue per employee");
+
+      d3.csv("lineChart.csv", parseRow, function (mydata){ 
+	    	//we load the data
+        d3.select("#line-chart")  //select the svg that will hold the chart
+          .datum(mydata)		 //assign the data
+          .call(lineChart);       //call the function generating the chart   
+      });		
+    </script>
+  </body>
+</html>

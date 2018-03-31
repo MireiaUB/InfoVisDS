@@ -1,0 +1,40 @@
+body {
+    margin: 0;
+}
+rect {
+	fill:grey; 
+}
+
+.x-axis, .y-axis {
+	font-size:0.5em; 
+	font-family:Arial; 
+	text-anchor:end; 
+}
+
+.x-axis path, .x-axis line, .y-axis path, .y-axis line {
+	fill:none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+.x-axis .tick, .y-axis .tick {
+	opacity:1 //0-1
+}
+.x-axis .tick line {
+	stroke:black; //#050505
+}
+.y-axis .tick:not(:first-of-type)  line {
+	stroke: #000; 
+	stroke-dasharray: 2,5
+}
+
+.label{ 
+	margin:0;
+	stroke:#000;
+	fill:#000;
+	stroke-width:0.3;
+	font-size:2em;
+	font-family:Garamond,roman;
+	display:visible
+}
+

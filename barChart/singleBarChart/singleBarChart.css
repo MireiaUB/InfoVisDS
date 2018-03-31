@@ -1,0 +1,38 @@
+rect {
+	fill:#da0; 
+}
+
+.x-axis, .y-axis {
+	font-size:0.7em; 
+	font-family:Arial; 
+	text-anchor:end; 
+}
+.x-axis path, .y-axis path { 
+	stroke:black; 
+}
+.x-axis .tick, .y-axis .tick {
+	opacity:1 //0-1
+}
+.x-axis .tick line {
+	stroke:black; //#050505
+}
+.y-axis .tick line {
+	stroke: #fff; 
+	stroke-dasharray: 2,2
+}
+
+.label{ 
+	display:visible; 
+	fill:#fff;
+	font-family:Arial
+}
+.x-axis .label, .y-axis .label{ 
+	display:visible; 
+	fill:#000;
+	stroke:#000;
+	font-family:Garamond,roman;
+	font-size:2em
+}
+
+
+

@@ -1,0 +1,11 @@
+Species,Probability,Error
+Halobacillus halophilus,10,0.045296463390387814
+Staphylococcus epidermidis,25,0.0096463390387814
+Chromobacterium violaceum,10,0.03390387814
+Pseudomonas TKP,5,0.0045296463390387745
+Bacillus subtilis,5,0.0765387676
+Pseudomonas fluorescens,5,0.0045296463390387676
+Micrococcus luteus,5,0.006463390387814
+Pseudoalteromonas SM9913,3,0.05296463390387814
+Enterococcus faecalis,30,0.0077390387814
+Escherichia coli,2,0.100646339038795

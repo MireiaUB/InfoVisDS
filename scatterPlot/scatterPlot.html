@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Scatterplot</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.5/d3-legend.js"></script><!-- for legends -->
+	<!-- call the specific javascript and CSS -->
+    <script src="scatterPlot.js"></script> 
+    <link rel="stylesheet" type="text/css" href="scatterPlot.css">
+	<!-- end call-->
+  </head>
+  <body>
+    <svg id="scatterPlot"><!-- we need and svg container with an id to hold the chart -->
+	</svg>
+	<svg id="colorLegend"></svg><!-- we need and svg container with an id to hold the color legend -->
+	<svg id="sizeLegend"></svg><!-- we need and svg container with an id to hold the size legend -->
+	<script>     
+      var scatterPlot = ScatterPlot() //we do a basic setup of the chart
+        .width(900)
+        .height(500)
+        .x("Cereal_Name") //x axis -- qualitative
+        .y("Calories")	//y axis -- quantitative
+		.z("Manufacturer") //color categories -- qualitative
+		.s("Fat")	//bubble size -- quantitative
+		.xLegend("Cereal names")
+		.yLegend("Calories")
+		.zLegend("Manufacturer")
+		.sLegend("Fat");
+
+      d3.csv("scatterPlot.csv", parseRow, function (mydata){ 
+	    	//we load the data
+
+		
+        d3.select("#scatterPlot")  //select the svg that will hold the chart
+          .datum(mydata)		 //assign the data
+          .call(scatterPlot);       //call the function generating the chart   
+      });		
+    </script>
+  </body>
+</html>
