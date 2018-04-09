@@ -1,0 +1,172 @@
+<html>
+<head>
+   <script src="https://d3js.org/d3.v4.min.js"></script>
+   <script src="https://d3js.org/d3-color.v1.min.js"></script>
+   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+   <script src="dat.gui.min.js"></script>
+</head>
+<body>
+<style>
+svg {
+    fill: #ffffee;
+}
+path.links {
+	fill:none;
+	stroke: steelblue;
+	stroke-width: 2;
+	opacity: 0.9;
+	stroke-linecap: round;
+}
+</style>
+<div class="chart">
+</div>
+
+<script>
+	//setup chart
+	var margin = {top:10,right:20,bottom:10,left:20},
+	width = 1000 -margin.left - margin.right,
+	height = 800 -margin.top - margin.bottom,
+	svg = d3.select(".chart")
+	   .append('svg')
+		   .attr('width',width + margin.left + margin.right)
+		   .attr('height',height + margin.top + margin.bottom)
+		   .append('g')
+			   .attr('transform','translate('+margin.left+','+margin.top+')');
+	   
+    // setup the properties of the simulation
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function(d) { return d.id; }))
+        .force("charge", d3.forceManyBody().strength(-60))
+        .force("collide", d3.forceCollide(100).iterations(16))
+        .force("y", d3.forceY(height/2).strength(0.2))
+        .force("x", d3.forceX(width/2).strength(0))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+
+	var colorScale = d3.scaleOrdinal(d3.schemeCategory10) //COLOR
+		.domain([1,10])
+
+	/**** DRAG and PIN interaction ***/
+
+	function dragstarted(d, i) {
+        if (!d3.event.active) 
+			simulation.alphaTarget(0.8).restart(); //stops the motion
+		d.fx = d.x;	//fixes the node
+		d.fy = d.y;
+    }
+    function dragged(d) {
+		d.fx = d3.event.x;	//the node follows the pointer
+		d.fy = d3.event.y;
+    }
+    function dragended(d, i) {
+		if (!d3.event.active) simulation.alphaTarget(0); 
+					//reruns the motion
+	}
+    
+	function releasenode(d){
+		d.fx = null;
+		d.fy = null;
+
+	}
+	
+	/**** DRAG and PIN interaction ***/
+		
+	// datajoin	
+    d3.json("./data/miserables2.json", function(error, graph) {
+	
+		var ForceConfig = function() {
+			this.forceCollide = 50;
+			this.forceCharge = -40;
+			this.forceX_toCenter = 0;
+			this.forceY_toCenter = 0.2;
+
+			// Define render logic ...
+			this.simulate = function(){
+				simulation.force("collide", d3.forceCollide(config.forceCollide).iterations(16))
+						  .force("charge", d3.forceManyBody().strength(config.forceCharge))
+						  .force("y", d3.forceY(height/2).strength(config.forceY_toCenter))
+						  .force("x", d3.forceX(width/2).strength(config.forceX_toCenter));
+
+				simulation.alpha(1).alphaTarget(0.6).alphaMin(0.6).restart();
+			}
+		};
+		var config = new ForceConfig();
+	
+		setupGUI(); //to load the gui
+
+		
+        // draw the links 
+        var link = svg.append("g")
+            .attr("class", "links")
+            .selectAll(".links")
+            .data(graph.links)
+			.enter().append("path") //ARCS
+			.attr("stroke","black")
+            .attr("class", "links");
+
+
+        // draw the nodes and add listeners
+        var node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes,function(d) { return d.id;})
+				//we associate a key for object constancy
+            .enter()
+				.append('g')
+		
+
+		node
+			.on('dblclick', releasenode)    //DRAG AND PIN interaction
+			.on('keyup', releasenode) 		//DRAG AND PIN interaction
+			.call(d3.drag()				 //DRAG AND PIN interaction
+				.on("start", dragstarted)//DRAG AND PIN interaction
+				.on("drag", dragged)	 //DRAG AND PIN interaction
+				.on("end", dragended));  //DRAG AND PIN interaction
+
+				
+				
+		node.append('image')	//IMAGES
+			.attr("xlink:href",function(d){return "./img/"+d.id+".png";})
+			.attr("height",65)
+			.attr("width",65)
+			.attr("transform","translate(-32 -32)");
+		
+		link.exit()
+			.remove();
+
+		node.exit()
+			.remove();
+	
+        // run the simulation
+        simulation.nodes(graph.nodes).on("tick", ticked);
+        simulation.force("link").links(graph.links);
+
+        // on each tick set the position of the nodes and the lines
+        function ticked() {
+            node
+				.attr("transform", function(d) {return "translate("+ d.x +" " + d.y + ")"})
+			link
+				.attr("d", linkArc)
+        }
+
+		function linkArc(d) {
+			var cX = (d.source.x + d.target.x) / 2;
+			var cY = Math.abs(d.source.x - width/2) > Math.abs(	d.target.x- width/2) ? d.target.y : d.source.y; return "M" + d.source.x +"," + d.source.y + "Q" +cX + "," + cY + "," + d.target.x + "," + d.target.y;
+		}
+		
+        function setupGUI() {
+            var gui = new dat.GUI();
+            gui.add(config, 'forceCollide', 0, 100);
+            gui.add(config, 'forceCharge', -300, 300, 20);
+            gui.add(config, 'forceX_toCenter', 0, 2, 0.01);
+            gui.add(config, 'forceY_toCenter', 0, 2, 0.01);
+
+            gui.add(config, 'simulate');
+        }
+
+		
+    });
+	</script>
+
+
+</body>
+</html>

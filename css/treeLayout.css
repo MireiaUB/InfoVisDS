@@ -1,0 +1,18 @@
+.link {
+	stroke:#000;
+	fill:none;
+}
+
+.node--internal, .node--leaf {
+	fill: #000
+}
+
+text {
+	font-family:Arial;
+	font-size:0.7em;
+	fill:#000
+}
+
+svg {
+	overflow: visible
+}

@@ -1,0 +1,102 @@
+<html>
+<head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+	<link rel="stylesheet" href="css/treelayout.css" />
+</head>
+<body>
+<div class="chart">
+</div>
+
+<script>
+	/* containers and graphs */
+	var margin = {top:10,right:20,bottom:10,left:20},
+	width = 500 -margin.left - margin.right,
+	height = 400 -margin.top - margin.bottom,
+	svg = d3.select(".chart")
+	   .append('svg')
+		   .attr('width',width + margin.left + margin.right)
+		   .attr('height',height + margin.top + margin.bottom)
+		   .append('g')
+			   .attr('transform','translate('+margin.left+','+margin.top+')');
+			   
+	svg. append('g')
+		.attr("class","links");
+
+	svg. append('g')
+		.attr("class","nodes"); //the nodes must be drawn after the lines
+
+	/* end containers and graphs */
+			
+	   
+	   
+	/* datajoin	*/
+    d3.json("./data/hierarchy2.json", function(error, data) {
+		var root = d3.hierarchy(data);
+		var treeLayout = d3.tree();
+		treeLayout.size([width-50,height-50]);
+		treeLayout(root);
+	
+
+		/* edges */
+		var glinks =d3.select('svg g.links')
+		  .selectAll('line.link')
+		  .data(root.links());
+		  
+		glinks.enter()
+				.append('line')
+					.merge(glinks)
+					.classed('link', true)
+						.attr('x1', function(d) {return d.source.x;})
+						.attr('y1', function(d) {return d.source.y;})
+						.attr('x2', function(d) {return d.target.x;})
+						.attr('y2', function(d) {return d.target.y;});
+
+		glinks.exit()
+			.remove();
+		/* end edges */
+
+		/* nodes */
+		
+		var node =d3.select('svg g.nodes')
+		  .selectAll('.node')
+		  .data(root.descendants())
+		  .enter()
+			.append("g")
+				.classed('node', true)
+				.classed('leaf', function(d) {return (d.data.value ? true : false);})
+				.attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")"; })
+		
+		node
+			.append('circle')
+				.attr("id",function(d) {return d.data.name;})
+				.attr('cx', 0)
+				.attr('cy', 0)
+				.attr('r', function(d) {return Math.sqrt(d.data.value ? +d.data.value : 70);})
+
+		//leaf nodes don't have values, so we assign them a default value of 70
+		//radius is the square of the value in order to make the area proportional to values
+		//we class leaf nodes in order to style them differently
+
+					
+		//Labels enter
+		node
+			.append('text')
+				.attr('x', 0)
+				.attr('y', 3)
+				.style('text-anchor','middle')
+				.text(function(d) {return d.data.name;})
+		
+		//Nodes and node labels exit
+		node.exit()
+			.remove();		
+
+		/* end nodes */
+	
+	/* end datajoin	*/
+
+    });
+	</script>
+
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<html>
+<head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+	<link rel="stylesheet" href="css/treelayout.css" />
+</head>
+<body>
+<div class="chart">
+</div>
+<!-- have a look at 
+https://bl.ocks.org/d3noob/43a860bc0024792f8803bba8ca0d5ecd , https://bl.ocks.org/mbostock/4339083 -->
+<script>
+	/*************** global variables *****************/
+	var i = 0,
+    duration = 750,
+    root,
+	treemap,
+	treedata,
+	distanceNode = 180;
+	/*************** end global variables ****************/
+
+			
+
+	/*********************** containers and graphs ******************/
+	var margin = {top:20,right:100,bottom:10,left:100},
+	width = 960 -margin.left - margin.right,
+	height = 500 -margin.top - margin.bottom,
+	svg = d3.select(".chart")
+	   .append('svg')
+		   .attr('width',width + margin.left + margin.right)
+		   .attr('height',height + margin.top + margin.bottom)
+		   .append('g')
+			   .attr('transform','translate('+margin.left+','+margin.top+')');
+			   
+	svg. append('g')
+		.attr("class","links");
+
+	svg. append('g')
+		.attr("class","nodes"); //the nodes must be drawn after the lines
+
+	/********************* end containers and graphs ****************/
+	
+	/* datajoin	*/
+    d3.json("./data/hierarchy.json", function(error, data) {
+
+
+		// Assigns parent, children, height, depth
+		var root = d3.hierarchy(data, function(d) {return d.children;});
+		root.x0 = height /2;
+		root.y0 = 0;
+
+		// declares a tree layout and assigns the size
+		var treeLayout = d3.tree()
+			.size([height,width]);
+		
+		
+		// Collapse the node and all it's children
+		function collapse(d) {
+			if (d.children) {
+				d._children = d.children;
+				d._children.forEach(collapse);
+				d.children = null;
+			}	
+		}
+
+		// Collapse after the second level
+		root.children.forEach(collapse);
+
+		update(root);
+		
+
+		function update(source) {
+		
+		/*************** auxiliar functions ******************/
+		
+		// Toggle children on click.
+		function click(d) {
+			if (d.children) {
+				d._children = d.children;
+				d.children = null;
+			} else {
+				d.children = d._children;
+				d._children = null;
+			}
+			update(d);
+		}
+
+		// Creates a curved (diagonal) path from parent to the child nodes
+		function diagonal(source,target) {
+			console.log("diagonal",source,target);//XIVATO
+			return "M" + source.y + "," + source.x
+					+ "C" + ((source.y + target.y) / 2) + "," + source.x
+					+ " " + ((source.y + target.y) / 2) + "," + source.x
+					+ " " + target.y + "," + target.x;
+		}
+
+			
+		/****************** end of auxiliar functions *******************/   
+
+
+
+		var treeData = treeLayout(root);
+		
+		// Compute the new tree layout.
+		var nodes = treeData.descendants(),
+			links = treeData.descendants().slice(1);
+
+		// Normalize for fixed-depth.
+		nodes.forEach(function(d){ d.y = d.depth * distanceNode});
+		
+
+		/***************** nodes **************************/
+			
+		// Update the nodes...
+		var node =d3.select('svg g.nodes')
+			.selectAll('g.node')
+			.data(nodes, function(d) {return d.id || (d.id = ++i); });
+				
+		// Enter any new modes at the parent's previous position.
+		var nodeEnter=
+			node.enter()
+			.append("g")
+				.classed('node', true)
+				.attr("transform", function(d) {return "translate(" + source.y0 + "," + source.x0 + ")"; })
+				.on('click',click);
+			
+		nodeEnter
+			.append('circle')
+				.attr("id",function(d) {return d.data.name;})
+				.classed('node', true)
+				.classed('leaf', function(d) {return d.children ? false : true;})
+				.classed('collapsed', function(d) {return d._children ? true : false;})
+				.attr('r', 1e-6)
+						
+		//Labels enter
+		nodeEnter
+			.append('text')
+				.attr('x', function(d) { return d.children || d._children ? -13 : 13; })
+				.attr('y', -7)
+				.attr('dy', '.35em')
+				.style('text-anchor',function(d) { return d.children || d._children ? "end" : "start";})
+				.text(function(d) {return d.data.name;})
+			
+		// UPDATE
+				
+		var nodeUpdate = nodeEnter
+			.merge(node);
+
+		// Transition to the proper position for the node
+		nodeUpdate.transition()
+			.duration(duration)
+			.attr("transform", function(d) { 
+				return "translate(" + d.y + "," + d.x + ")";});
+
+		// Update the node attributes and style
+		nodeUpdate.select('circle.node')
+			.attr('r', 10)
+			.text(function(d) {return d.data.name;})
+			.classed('leaf', function(d) {return d.children ? false : true;})
+			.classed('collapsed', function(d) {return d._children ? true : false;});
+
+
+		  // Remove any exiting nodes
+		var nodeExit = node.exit().transition()
+			.duration(duration)
+			.attr("transform", function(d) {
+				return "translate(" + source.y + "," + source.x + ")";})
+			.remove();
+
+		// On exit reduce the node circles size to 0
+		nodeExit.select('circle')
+			.attr('r', 1e-6);
+
+		// On exit reduce the opacity of text labels
+		nodeExit.select('text')
+			.style('fill-opacity', 1e-6);			
+			
+		/******************** end nodes *****************************/
+
+
+
+		
+		/********************* edges ********************************/
+
+		// Update the links...
+		var link =svg.select('g.links')
+			.selectAll('path.link')
+			.data(links, function(d) { return d.data.name; });
+			  
+		// Enter any new links at the parent's previous position.
+		var linkEnter = link.enter()
+			.insert('path', "g")
+				.classed('link', true)
+				.attr('d', function(d){
+					var o = {x: source.x0, y: source.y0};
+					return diagonal(o, o)});
+							
+		// UPDATE
+		var linkUpdate = linkEnter.merge(link);
+
+		// Transition back to the parent element position
+		linkUpdate.transition()
+			.duration(duration)
+			.attr('d', function(d){ return diagonal(d, d.parent) });
+
+		// Remove any exiting links
+		var linkExit = link.exit()
+			.transition()
+			.duration(duration)
+			.attr('d', function(d) {
+				var o = {x: source.x, y: source.y}
+				return diagonal(o, o)})
+			.remove();
+
+		// Store the old positions for transition.
+		nodes.forEach(function(d){
+			d.x0 = d.x;
+			d.y0 = d.y; });
+
+		/****************** end edges ****************************/
+
+		
+
+
+		/* end update */	
+		}
+	/* end datajoin	*/
+
+    });
+	</script>
+
+
+</body>
+</html>

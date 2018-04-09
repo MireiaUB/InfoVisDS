@@ -1,0 +1,99 @@
+<html>
+<head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+<style>
+svg {
+    fill: #ffffee;
+}
+path.links {
+	fill:none;
+	stroke: steelblue;
+	stroke-width: 2;
+	opacity: 0.9;
+	stroke-linecap: round;
+}
+</style>
+<div class="chart">
+</div>
+
+<script>
+	//setup chart
+	var margin = {top:10,right:20,bottom:10,left:20},
+	width = 1000 -margin.left - margin.right,
+	height = 800 -margin.top - margin.bottom,
+	svg = d3.select(".chart")
+	   .append('svg')
+		   .attr('width',width + margin.left + margin.right)
+		   .attr('height',height + margin.top + margin.bottom)
+		   .append('g')
+			   .attr('transform','translate('+margin.left+','+margin.top+')');
+	   
+    // setup the properties of the simulation
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function(d) { return d.id; }))
+        .force("charge", d3.forceManyBody().strength(-30))
+        .force("collide", d3.forceCollide(30).iterations(16))
+        .force("y", d3.forceY(height/2).strength(0.2))
+        .force("x", d3.forceX(width/2).strength(0))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+
+	// datajoin	
+    d3.json("./data/miserables.json", function(error, graph) {
+
+		console.log(graph) //cheat
+		
+        // draw the links 
+        var link = svg.append("g")
+            .attr("class", "links")
+            .selectAll(".links")
+            .data(graph.links)
+			.enter().append("path") //ARCS
+			.attr("stroke","black")
+            .attr("class", "links");
+
+
+        // draw the nodes and add listeners
+        var node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes,function(d) { return d.id;})
+				//we associate a key for object constancy
+            .enter()
+				.append("circle")
+					.attr("r", 15)
+					.attr("class", "node")
+					.attr("fill", "white")
+					.attr("stroke", "black");
+		
+		link.exit()
+			.remove();
+
+		node.exit()
+			.remove();
+	
+        // run the simulation
+        simulation.nodes(graph.nodes).on("tick", ticked);
+        simulation.force("link").links(graph.links);
+
+        // on each tick set the position of the nodes and the lines
+        function ticked() {
+            node
+				.attr("transform", function(d) {return "translate("+ d.x +" " + d.y + ")"})
+			link
+				.attr("d", linkArc)
+        }
+
+		function linkArc(d) {
+			var cX = (d.source.x + d.target.x) / 2;
+			var cY = Math.abs(d.source.x - width/2) > Math.abs(	d.target.x- width/2) ? d.target.y : d.source.y; 
+			return "M" + d.source.x +"," + d.source.y + "Q" +cX + "," + cY + "," + d.target.x + "," + d.target.y;
+		}
+		
+    });
+	</script>
+
+
+</body>
+</html>

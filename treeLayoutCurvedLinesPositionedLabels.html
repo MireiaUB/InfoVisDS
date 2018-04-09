@@ -1,0 +1,106 @@
+<html>
+<head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+	<link rel="stylesheet" href="css/treeLayout.css" />
+</head>
+<body>
+<div class="chart">
+</div>
+
+<script>
+	/* containers and graphs */
+	var margin = {top:10,right:20,bottom:10,left:20},
+	width = 500 -margin.left - margin.right,
+	height = 400 -margin.top - margin.bottom,
+	svg = d3.select(".chart")
+	   .append('svg')
+		   .attr('width',width + margin.left + margin.right)
+		   .attr('height',height + margin.top + margin.bottom)
+		   .append('g')
+			   .attr('transform','translate('+margin.left+','+margin.top+')');
+			   
+	svg. append('g')
+		.attr("class","links");
+
+	svg. append('g')
+		.attr("class","nodes"); //the nodes must be drawn after the lines
+
+	/* end containers and graphs */
+			
+	   
+	   
+	/* datajoin	*/
+    d3.json("./data/hierarchy2.json", function(error, data) {
+		var root = d3.hierarchy(data);
+		var treeLayout = d3.tree();
+		treeLayout.size([height-50,width-50]);
+		treeLayout(root);
+	
+
+		/* edges */
+		var glinks =d3.select('svg g.links')
+		  .selectAll('path.link')
+		  .data(root.links());
+		  
+		glinks.enter()
+				.append('path')
+					.merge(glinks)
+					.classed('link', true)
+						.attr('d', diagonal);
+
+						
+		function diagonal(d) {
+			return "M" + d.source.y + "," + d.source.x
+					+ "C" + ((d.source.y + d.target.y) / 2) + "," + d.source.x
+					+ " " + ((d.source.y + d.target.y) / 2) + "," + d.target.x
+					+ " " + d.target.y + "," + d.target.x;
+		}
+
+						
+		glinks.exit()
+			.remove();
+		/* end edges */
+
+		/* nodes */
+		
+		var node =d3.select('svg g.nodes')
+		  .selectAll('.node')
+		  .data(root.descendants())
+		  .enter()
+			.append("g")
+				.classed('node', true)
+				.classed('leaf', function(d) {return (d.data.value ? true : false);})
+				.attr("transform", function(d) {return "translate(" + d.y + "," + d.x + ")"; })
+		
+		node
+			.append('circle')
+				.attr("id",function(d) {return d.data.name;})
+				.attr('cx', 0)
+				.attr('cy', 0)
+				.attr('r', 2.5)
+
+//the label will appear before or after the node depending if it is internal or leaf.					
+		//Labels enter
+		node
+			.append('text')
+				.attr('x', function(d) { return d.data.value ? -4 : 4 })
+				.attr('y', -7)
+				.attr('dy', '.35em')
+				.style('text-anchor',function(d) { return d.data.value ? "end" :
+"start"; })
+				.text(function(d) {return d.data.name;})
+		
+		//Nodes and node labels exit
+		node.exit()
+			.remove();		
+
+		/* end nodes */
+	
+	/* end datajoin	*/
+
+    });
+	</script>
+
+
+</body>
+</html>

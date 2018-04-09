@@ -1,0 +1,17 @@
+.link {
+	stroke:#000;
+}
+
+.node {
+	fill: #000
+}
+
+.node.leaf {
+	fill: #f00;
+}
+
+text.node {
+	font-family:Arial;
+	font-size:0.7em;
+	fill:#fff
+}
