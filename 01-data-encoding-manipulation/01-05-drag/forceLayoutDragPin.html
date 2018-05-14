@@ -1,0 +1,130 @@
+<html>
+<head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+<style>
+svg {
+    fill: #ffffee;
+}
+circle {
+	fill: blue;
+}
+</style>
+<div class="chart">
+</div>
+
+<script>
+
+
+	/**** DRAG and PIN interaction ***/
+
+	function dragstarted(d, i) {
+        if (!d3.event.active) 
+			simulation.alphaTarget(0.8).restart(); //stops the motion
+		d.fx = d.x;	//fixes the node
+		d.fy = d.y;
+    }
+    function dragged(d) {
+		d.fx = d3.event.x;	//the node follows the pointer
+		d.fy = d3.event.y;
+    }
+    function dragended(d, i) {
+		if (!d3.event.active) simulation.alphaTarget(0); 
+					//reruns the motion
+	}
+    
+	function releasenode(d){
+		d.fx = null;
+		d.fy = null;
+
+	}
+	
+	/**** DRAG and PIN interaction ***/
+	
+	
+	//setup chart
+	var margin = {top:10,right:20,bottom:10,left:20},
+	width = 1000 -margin.left - margin.right,
+	height = 800 -margin.top - margin.bottom,
+	svg = d3.select(".chart")
+	   .append('svg')
+		   .attr('width',width + margin.left + margin.right)
+		   .attr('height',height + margin.top + margin.bottom)
+		   .append('g')
+			   .attr('transform','translate('+margin.left+','+margin.top+')')
+
+			   
+    // setup the properties of the simulation
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function(d) { return d.id; }))
+        .force("charge", d3.forceManyBody().strength(-30))
+        .force("collide", d3.forceCollide(30).iterations(16))
+        .force("y", d3.forceY(height/2).strength(0.2))
+        .force("x", d3.forceX(width/2).strength(0))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+
+    d3.json("./data/miserables.json", function(error, graph) {
+
+	
+        // draw the links 
+        var link = svg.append("g")
+            .attr("class", "links")
+            .selectAll(".links")
+            .data(graph.links)
+			.enter().append("line")
+			.attr("stroke","black")
+            .attr("class", "links");
+
+
+        // draw the nodes and add listeners
+        var node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes,function(d) { return d.id;})
+				//we associate a key for object constancy
+            .enter()
+				.append("circle")
+					.attr("r", 15)
+					.attr("class", "node")
+					.attr("fill", "white")
+					.attr("stroke", "black")
+					.attr("id",function(d) {return d.id;});
+		
+
+		node
+			.on('dblclick', releasenode)    //DRAG AND PIN interaction
+			.on('keyup', releasenode) 		//DRAG AND PIN interaction
+			.call(d3.drag()				 //DRAG AND PIN interaction
+				.on("start", dragstarted)//DRAG AND PIN interaction
+				.on("drag", dragged)	 //DRAG AND PIN interaction
+				.on("end", dragended));  //DRAG AND PIN interaction
+
+		
+		link.exit()
+			.remove();
+
+		node.exit()
+			.remove();
+	
+        // run the simulation
+        simulation.nodes(graph.nodes).on("tick", ticked);
+        simulation.force("link").links(graph.links);
+
+        // on each tick set the position of the nodes and the lines
+        function ticked() {
+            node
+				.attr("transform", function(d) {return "translate("+ d.x +" " + d.y + ")"})
+			link
+				.attr("x1", function(d) { return d.source.x; })
+				.attr("y1", function(d) { return d.source.y; })
+				.attr("x2", function(d) { return d.target.x; })
+				.attr("y2", function(d) { return d.target.y; });
+        }
+
+    });
+	</script>
+
+
+</body>
+</html>

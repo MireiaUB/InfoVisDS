@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Sort</title>
+		<style type="text/css">
+			/* No style rules here yet */		
+		</style>
+	</head>
+	<body>
+		<div id="barchart"></div>
+		<div id="legend"></div>
+		
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.5/d3-legend.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>	
+		<script
+			src="https://code.jquery.com/jquery-3.3.1.min.js"
+			integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+			crossorigin="anonymous"></script>		
+		<script
+			src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+			integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+			crossorigin="anonymous"></script>		
+		<script type="text/javascript">
+		
+
+			//Width and height
+			var w = 600;
+			var h = 250;
+			
+			var dataset = [ { key: 0, value: 5, category: "banana" },		//dataset is now an array of objects.
+							{ key: 1, value: 10, category: "apple" },		//Each object has a 'key' and a 'value' and a 'category'
+							{ key: 2, value: 13, category: "peach" },
+							{ key: 3, value: 19, category: "banana" },
+							{ key: 4, value: 21, category: "apple" },
+							{ key: 5, value: 25, category: "apple" },
+							{ key: 6, value: 22, category: "peach" },
+							{ key: 7, value: 18, category: "peach" },
+							{ key: 8, value: 15, category: "apple" },
+							{ key: 9, value: 13, category: "apple" },
+							{ key: 10, value: 11, category: "apple" },
+							{ key: 11, value: 12, category: "apple" },
+							{ key: 12, value: 15, category: "banana" },
+							{ key: 13, value: 20, category: "peach" },
+							{ key: 14, value: 18, category: "apple" },
+							{ key: 15, value: 17, category: "banana" },
+							{ key: 16, value: 16, category: "peach" },
+							{ key: 17, value: 18, category: "banana" },
+							{ key: 18, value: 23, category: "apple" },
+							{ key: 19, value: 25, category: "banana" } ];
+
+	
+			var xScale = d3.scaleBand()
+							.domain(d3.range(dataset.length))
+							.rangeRound([0, w])
+							.paddingInner(0.05);
+
+			var yScale = d3.scaleLinear()
+							.domain([0, d3.max(dataset, function(d) {return d.value;})])
+							.range([0, h]);
+							
+			var categoryScale = d3.scaleOrdinal()
+							.domain(["apple","peach","banana"])
+							.range(["rgb(0, 204, 0)", "rgb(255, 153, 0)", "rgb(204, 204, 0)"]);
+
+			//Define key function, to be used when binding data
+			var key = function(d) {
+				return d.key;
+			};
+
+							
+			//Create SVG element
+			var svg = d3.select("#barchart")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+
+
+			//Create bars
+			var rects = svg.selectAll("rect")
+			   .data(dataset, key)
+
+			rects
+				.exit()
+					.transition()
+					.duration(500)
+					.attr('y',h)
+					.remove();
+					
+			rects
+				.enter()
+				   .append("rect")
+				   .merge(rects)
+				   .transition()
+				   .duration(500)
+				   .attr("x", function(d, i) {
+						return xScale(i);
+				   })
+				   .attr("y", function(d) {
+						return h - yScale(d.value);
+				   })
+				   .attr("width", xScale.bandwidth())
+				   .attr("height", function(d) {
+						return yScale(d.value);
+				   })
+				   .attr("fill", function(d) {
+						return categoryScale(d.category);
+				   })
+				   .attr("class", function(d) {
+						return d.category;
+				   })
+				   
+		
+			//Create labels
+			var texts = svg.selectAll("text")
+			   .data(dataset, key)
+			
+			texts
+				.exit()
+					.transition()
+					.duration(500)
+					.attr('y',h)
+					.remove();					
+					
+			texts
+			   .enter()
+			   .append("text")
+			   .merge(texts)
+			   .transition()
+			   .duration(500)
+			   .text(function(d) {
+					return d.value;
+			   })
+			   .attr("text-anchor", "middle")
+			   .attr("x", function(d, i) {
+					return xScale(i) + xScale.bandwidth() / 2;
+			   })
+			   .attr("y", function(d) {
+					return h - yScale(d.value) + 14;
+			   })
+			   .attr("font-family", "sans-serif")
+			   .attr("font-size", "11px");
+			
+		
+		
+			//Define sort function
+			var sortBars = function(direction) {
+
+				svg.selectAll("rect")
+				   .sort(function(a, b) {
+				   		if (direction) {
+					   		return d3.ascending(a.value, b.value);
+				   		} else {
+					   		return d3.descending(a.value, b.value);
+				   		}
+				   	})
+				   .transition()
+				   .duration(1000)
+				   .attr("x", function(d, i) {
+				   		return xScale(i);
+				   });
+				   
+				svg.selectAll("text")
+				   .sort(function(a, b) {
+				   		if (direction) {
+					   		return d3.ascending(a.value, b.value);
+				   		} else {
+					   		return d3.descending(a.value, b.value);
+				   		}
+				   	})
+				   .transition()
+				   .duration(1000)
+				   .attr("x", function(d, i) {
+						return xScale(i) + xScale.bandwidth() / 2;
+			   })
+
+
+			};			
+
+			var resetBars = function() {
+
+				svg.selectAll("rect")
+				   .sort(function(a, b) {
+					   		return d3.ascending(a.key, b.key);
+				   	})
+				   .transition()
+				   .duration(1000)
+				   .attr("x", function(d, i) {
+				   		return xScale(i);
+				   });
+				   
+				svg.selectAll("text")
+				   .sort(function(a, b) {
+					   		return d3.ascending(a.key, b.key);
+				   	})
+				   .transition()
+				   .duration(1000)
+				   .attr("x", function(d, i) {
+						return xScale(i) + xScale.bandwidth() / 2;
+			   })
+
+			};			
+
+			//Legend
+
+			var svglegend = d3.select("#legend")
+						.append("svg")
+						.attr("width", 250)
+						.attr("height", 70);
+
+			svglegend.append("g")
+			  .attr("class", "legendOrdinal")
+			  .attr("transform", "translate(20,20)");
+
+			var legendOrdinal = d3.legendColor()
+			  .shapeWidth(70)
+			  .orient('horizontal')
+			  .scale(categoryScale)
+
+			svglegend.select(".legendOrdinal")
+				.call(legendOrdinal);
+		
+				
+		</script>
+			<img id="sortvalueascending" src="sortascending.png" alt="sort ascending" width="60" onclick="sortBars(1)" style="float:left; margin-right:20px" />
+			<img id="sortvaluedescending" src="sortdescending.png" alt="sort descending" width="60" onclick="sortBars(0)" style="float:left; margin-right:20px" />
+			<input class="reset" type="button" value="Reset" style="height:60px"  onclick="resetBars()">
+	</body>
+</html>

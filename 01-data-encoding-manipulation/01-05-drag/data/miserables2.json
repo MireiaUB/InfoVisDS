@@ -1,0 +1,36 @@
+{
+  "nodes": [
+    {"id": "Valjean", 
+	"type": 2},
+    {"id": "Fantine", 
+	"type": 3},
+    {"id": "Thenardier", 
+	"type": 4},
+    {"id": "Cosette", 
+	"type": 5},
+    {"id": "Javert", 
+	"type": 4},
+    {"id": "Eponine", 
+	"type": 4},
+    {"id": "Marius", 
+	"type": 8},
+    {"id": "Enjolras", 
+	"type": 8}
+  ],
+  "links": [
+    {"source": "Fantine", "target": "Valjean", "value": 9},
+    {"source": "Cosette", "target": "Valjean", "value": 31},
+    {"source": "Cosette", "target": "Thenardier", "value": 1},
+    {"source": "Javert", "target": "Valjean", "value": 17},
+    {"source": "Javert", "target": "Fantine", "value": 5},
+    {"source": "Javert", "target": "Thenardier", "value": 5},
+    {"source": "Javert", "target": "Cosette", "value": 1},
+    {"source": "Eponine", "target": "Thenardier", "value": 3},
+    {"source": "Marius", "target": "Cosette", "value": 21},
+    {"source": "Marius", "target": "Valjean", "value": 19},
+    {"source": "Marius", "target": "Thenardier", "value": 2},
+    {"source": "Marius", "target": "Eponine", "value": 5},
+    {"source": "Enjolras", "target": "Marius", "value": 7},
+    {"source": "Enjolras", "target": "Javert", "value": 6},
+    {"source": "Enjolras", "target": "Valjean", "value": 4}]
+}
