@@ -145,47 +145,56 @@ function LineChartTime(){
 				
 			/* x-axis */
 
+			var chartLines = d3.select("#lines")
+				.append("g")
+				.attr("class",zLegend);
 			
 			/* lines */
-					
-            var chartLines = d3.select("#lines");
-			
-			var chartLine = chartLines.selectAll(zLegend)
-				.data(datalines) //we use our preprocessed data
-		
-			chartLine.enter()
-				.append("g")
-					.attr("class",zLegend)
-					.append("path")
-						.merge(chartLine)
-						.attr("class",function(d) {return "chartline "+d.id;})
-						.attr("fill", "none")
-						.attr("stroke",function(d) {return zScale(d.id);})
-						.attr("stroke-linejoin", "round")
-						.attr("stroke-linecap", "round")
-						.attr("stroke-width", 1.5) 
-						.attr("d", function(d) { return line(d.values);})
-						.on("mouseover", function(d) {linesFocus(d.id)})
-						.on("focus", function(d) {linesFocus(d.id)})
-						.on("mouseout", function(d) {linesBlur(d.id)})
-						.on("blur", function(d) {linesBlur(d.id)})
-						.on("click",function(d) {linesSelect(d.id)})
-						.on("keypress",function(d) {linesSelect(d.id)});
-					
-					
-			/* put anything related to update 
-			chartLine 
-				.attr("class", "update");  
-			   end update */			
-			
-			chartLine.exit() //exit
-				.remove();
+			function renderChartLine(dataset) {
+				//we group the drawing of the lines to facilitate interaction
 				
+				var key = function(d) {
+					return d.id;
+				};
 
+								
+				var chartLine = chartLines.selectAll("path")
+					.data(dataset, key); //we use our preprocessed data
+				
+				console.log("chartline",chartLine,dataset);//CHEAT
+				
+				chartLine.enter()
+						.append("path")
+						.merge(chartLine) //merge with update
+							.attr("class",function(d) {return "chartline "+d.id;})
+							.attr("fill", "none")
+							.attr("stroke",function(d) {return zScale(d.id);})
+							.attr("stroke-linejoin", "round")
+							.attr("stroke-linecap", "round")
+							.attr("stroke-width", 1.5) 
+							.attr("d", function(d) { return line(d.values);})
+							.on("mouseover", function(d) {linesFocus(d.id)})
+							.on("focus", function(d) {linesFocus(d.id)})
+							.on("mouseout", function(d) {linesBlur(d.id)})
+							.on("blur", function(d) {linesBlur(d.id)})
+							.on("click",function(d) {linesSelect(d.id)})
+							.on("keypress",function(d) {linesSelect(d.id)});
 
+							
+						
+				/* put anything related to update 
+				chartLine 
+					.attr("class", "update");  
+				   end update */			
+				
+				chartLine.exit() //exit	
+					.remove();
 			
+            }
 			/* end of lines */
-
+			
+			renderChartLine(datalines); //we use our preprocessed data			
+			
 			/* y-axis */
 			
 			d3.select('.y-axis').remove(); //delete old axis
@@ -220,6 +229,7 @@ function LineChartTime(){
 			
 			
 			/* color legend */
+			
 		
 			var colorLegendSVG = d3.select("#colorLegend")
 
@@ -230,9 +240,9 @@ function LineChartTime(){
 				.scale(zScale)
 				.title(zLegend)
 				.labelWrap(20)
-				.on("cellclick",legendColorsCellClick())
-				.on("cellover",legendColorsCellOver())
-				.on("cellout",legendColorsCellOut()); 
+				.on("cellclick",legendColorsCellClick)
+				.on("cellover",legendColorsCellOver)
+				.on("cellout",legendColorsCellOut); 
 
 			colorLegendSVG
 			  .call(legendOrdinal);		
@@ -249,23 +259,21 @@ function LineChartTime(){
 			
 			/* end color legend */
 
-			
-				
-        });
-    };
-
-
 	/* INTERACTION */
-	
+
+
 	var tooltip = d3.select("body").append("div")
 		.attr("class","tooltip")
 		.style("opacity",0);
+		
 
-	function legendColorsCellClick() {
+	function legendColorsCellClick(d) {
 	};
-	function legendColorsCellOver() {
+
+	function legendColorsCellOver(d) {
 	};
-	function legendColorsCellOut() {
+
+	function legendColorsCellOut(d) {
 	};
 
 	function linesFocus(){
@@ -278,6 +286,12 @@ function LineChartTime(){
 	}
 
 	/* END INTERACTION */
+			
+				
+        });
+    };
+
+
 	
 	/* SETTERS AND GETTERS ON LINEGRAPH SETTINGS
 	
