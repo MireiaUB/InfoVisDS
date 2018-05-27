@@ -1,3 +1,15 @@
+Adapted to d3.v4 from
+
+Tom Cardoso’s Block 1d44732cc7f3d97d6bf7
+Updated October 11, 2017
+Reusable waffle charts
+
+http://bl.ocks.org/tomcardoso/1d44732cc7f3d97d6bf7
+
+I've also changed the color scheme and the legend. Now, all the points are circles, but they can easily be changed by other icons.
+
+Original explanation:
+
 Reusable waffle charts
 Basic waffle charts using Mike Bostock's [http://bost.ocks.org/mike/chart/](reusable charts) convention. Waffles are configurable, as you can see below:
 
