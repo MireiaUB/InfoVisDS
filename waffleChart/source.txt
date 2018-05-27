@@ -1,0 +1,9 @@
+Adapted to d3.v4 from
+
+Tom Cardoso’s Block 1d44732cc7f3d97d6bf7
+Updated October 11, 2017
+Reusable waffle charts
+
+http://bl.ocks.org/tomcardoso/1d44732cc7f3d97d6bf7
+
+the color scheme has been also changed

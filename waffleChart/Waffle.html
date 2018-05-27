@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" type="text/css" href="Waffle.css">
+</head>
+
+<body>
+
+  <div class="chart"></div>
+
+
+  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-color.v1.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  <script src="./waffle.js"></script>
+
+  <script type="text/javascript">
+
+    d3.csv("./data.csv", function(err, data) {
+      if (err) {
+        console.error(err);
+      } else {
+        var waffle = new WaffleChart()
+          .selector(".chart")
+          .data(data)
+          .useWidth(true)
+          .label("Value of producers' sales in 2013, in thousands of dollars")
+          .size(12)
+          .gap(2)
+          .rows(15)
+          .columns(30)
+          .rounded(true)();
+      }
+    });
+
+
+  </script>
+
+</body>
+
+</html>
