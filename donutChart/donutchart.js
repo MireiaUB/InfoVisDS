@@ -46,11 +46,11 @@ function donutChart(){
 			/* container and graph group (#donut) */
 		
 
-            var svg = d3.select(this)
+            var svgDonut = d3.select(this)
 				.attr("width",width)
 				.attr("height",height)
 			
-			var g = svg.selectAll("g")
+			var g = svgDonut.selectAll("g")
 				.data([1]); //only one group
 				
             var innerWidth = width - margin.left - margin.right;
@@ -76,8 +76,8 @@ function donutChart(){
 
 			/* scales */
 		
-			zScale
-				.domain(function(d){return d[category];})
+			if (!zScale.domain())
+					zScale.domain(function(d){return d[category];});
 
  		    /* end of scales */
 
@@ -96,19 +96,28 @@ function donutChart(){
 
 			var arcData = pieGenerator(data); //we calculate the slices	
 					
-            var path = svg.select('.slices')
+            var path = svgDonut.select('.slices')
 				.selectAll('path')
 				.data(arcData);
 			
 			path.enter()
 				.append('path')
-				.attr('fill', function(d) { return zScale(d.data[category]); })
+				.merge(path)
+				.attr('class',function(d) {return d.data[category];})
+				.attr('fill', function(d) {return zScale(d.data[category]); })
 				.attr('d', arcGenerator)
 				.on("mouseover", function(d) {donutSliceFocus(d)})
 				.on("focus", function(d) {donutSliceFocus(d)})
 				.on("mouseout", function(d) {donutSliceBlur(d)})
 				.on("blur", function(d) {donutSliceBlur(d)});
 
+				
+			path.exit()
+				.transition()
+				.duration(500)
+				.attr('fill-opacity',0)
+				.remove();
+				
 			/* end of slices */
 
 			
@@ -124,10 +133,14 @@ function donutChart(){
             .innerRadius(radius * 0.9);
 
 
-            var label = svg.select('.labelName')
+            var label = svgDonut.select('.labelName')
 				.selectAll('text')
-                .data(pieGenerator)
-              .enter().append('text')
+                .data(pieGenerator);
+			
+			label
+              .enter()
+				.append('text')
+				.merge(label)
                 .attr('dy', '.35em')
                 .html(function(d) {
                     return d.data[category] + ': <tspan>' + d.data[variable] + '</tspan>';
@@ -146,15 +159,26 @@ function donutChart(){
 				.on("focus", function(d) {donutLabelFocus(d)})
 				.on("mouseout", function(d) {donutLabelBlur(d)})
 				.on("blur", function(d) {donutLabelBlur(d)});
-
+			
+			label
+			  .exit()
+				.transition()
+				.duration(500)
+				.attr('dy','.0em')
+				.remove();
+			
 			/* end slice labels*/
 
 			
 			/*  lines to connect slice and labels */
-            var polyline = svg.select('.lines')
+            var polyline = svgDonut.select('.lines')
                 .selectAll('polyline')
                 .data(pieGenerator)
-              .enter().append('polyline')
+			
+			polyline
+              .enter()
+			    .append('polyline')
+				.merge(polyline)
                 .attr('points', function(d) {
 
                     // see label transform function for explanations of these three lines.
@@ -162,6 +186,17 @@ function donutChart(){
                     pos[0] = radius * 0.95 * (midAngle(d) < Math.PI ? 1 : -1);
                     return [arcGenerator.centroid(d), labelsArcGenerator.centroid(d), pos]
                 });
+				
+			polyline
+			  .exit()
+				.transition()
+				.duration(500)
+				.attr('points', function(d) {
+                    var pos = labelsArcGenerator.centroid(d);
+                    pos[0] = radius * 0.8 * (midAngle(d) < Math.PI ? 1 : -1);
+					return [arcGenerator.centroid(d), labelsArcGenerator.centroid(d), pos]})
+				.remove();
+			
 
 			/* end lines */
 
@@ -289,7 +324,9 @@ function donutChart(){
     };	
 	/* end SETTERS AND GETTERS */
 
-			
+	my.zScale = function (value){
+        return arguments.length ? (zScale = value, my) : zScale;
+    };			
     return my;
 };
 
