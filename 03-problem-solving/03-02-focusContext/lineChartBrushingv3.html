@@ -1,0 +1,154 @@
+<html>
+<!-- From the book D3 by example
+SOURCE http://bl.ocks.org/d3byex/ba05a6b171c6c77f5909 -->
+<meta name="description" content="D3byEX 8.7" />
+<meta charset="utf-8">
+<style>
+</style>
+<body>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script>
+        var width = 960, height = 600;
+
+        var margins = { top: 10, left: 50, right: 50, bottom: 50, between: 50 };
+
+        var bottomGraphHeight = 50;
+        var topGraphHeight = height - (margins.top + margins.bottom + margins.between + bottomGraphHeight);
+        var graphWidths = width - margins.left - margins.right;
+
+        var svg = d3.select('body')
+              .append('svg')
+              .attr('width', width)
+              .attr('height', height)
+              .style('font', '10px sans-serif');
+
+        svg.append('defs') //clipping area to prevent line-chart flowing off to the left
+            .append('clipPath')
+            .attr('id', 'clip')
+            .append('rect')
+            .attr('width', width)
+            .attr('height', height);
+
+        var focus = svg //the big top line chart
+            .append('g')
+            .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
+
+        var context = svg.append('g') //the samll bottom line chart
+            .attr('class', 'context')
+            .attr('transform', 'translate(' + margins.left + ',' +
+                    (margins.top + topGraphHeight + margins.between) + ')');
+
+		//scales
+		
+        var xScaleTop = d3.time.scale().range([0, graphWidths]),
+            xScaleBottom = d3.time.scale().range([0, graphWidths]),
+            yScaleTop = d3.scale.linear().range([topGraphHeight, 0]),
+            yScaleBottom = d3.scale.linear().range([bottomGraphHeight, 0]);
+		
+		//axis (two x-axis, and only one y-axis for the top line chart)
+			
+        var xAxisTop = d3.svg.axis().scale(xScaleTop).orient('bottom'),
+            xAxisBottom = d3.svg.axis().scale(xScaleBottom).orient('bottom');
+        var yAxisTop = d3.svg.axis().scale(yScaleTop).orient('left');
+
+        var lineTop = d3.svg.line() //path generator
+            .x(function (d) { return xScaleTop(d.date); })
+            .y(function (d) { return yScaleTop(d.close); });
+
+		//the line charts generators
+		
+        var lineBottom = d3.svg.line() //path generator
+            .x(function (d) { return xScaleBottom(d.date); })
+            .y(function (d) { return yScaleBottom(d.close); });
+			
+		// the brush
+
+        var brush = d3.svg.brush()
+            .x(xScaleBottom)
+            .on('brush', function brushed() {
+                xScaleTop.domain(brush.empty() ? xScaleBottom.domain() : brush.extent()); //all the domain or the extent if brush has a selection
+                focus.select('.x.axis').call(xAxisTop);//redraw xAxis
+				focus.select('.line').attr('d',lineTop);//redraw line
+            });
+
+
+        d3.tsv('data.tsv', function (error, data) {
+            data.forEach(function (d) {
+                d.date = d3.time.format('%d-%b-%y').parse(d.date);
+                d.close = +d.close;
+            });
+
+            xScaleTop.domain(d3.extent(data, function (d) { return d.date; }));
+            yScaleTop.domain(d3.extent(data, function (d) { return d.close; }));
+            xScaleBottom.domain(d3.extent(data, function (d) { return d.date; }));
+            yScaleBottom.domain(d3.extent(data, function (d) { return d.close; }));
+
+            var topXAxisNodes = focus.append('g')
+                .attr('class', 'x axis')
+                .attr('transform', 'translate(' + 0 + ',' + (margins.top + topGraphHeight) + ')')
+                .call(xAxisTop);
+            styleAxisNodes(topXAxisNodes, 0);
+
+            focus.append('path')
+                .datum(data)
+                .attr('class', 'line')
+                .attr('d', lineTop);
+
+            var topYAxisNodes = focus.append('g')
+                .call(yAxisTop);
+            styleAxisNodes(topYAxisNodes);
+
+            context.append('path')
+                .datum(data)
+                .attr('class', 'line')
+                .attr('d', lineBottom);
+
+            var bottomXAxisNodes = context.append('g')
+                .attr('transform', 'translate(0,' + bottomGraphHeight + ')')
+                .call(xAxisBottom);
+            styleAxisNodes(bottomXAxisNodes, 0);
+
+            context.append('g')
+                .attr('class', 'x brush')
+                .call(brush)
+                .selectAll('rect')
+                .attr('y', -6)
+                .attr('height', bottomGraphHeight + 7);
+
+            context.selectAll('.extent')
+                .attr({
+                    stroke: '#000',
+                    'fill-opacity': 0.125,
+                    'shape-rendering': 'crispEdges'
+                });
+
+            styleLines(svg);
+        });
+
+        function styleLines(svg) {
+            svg.selectAll('path.line')
+                .attr({
+                    fill: 'none',
+                    'stroke-width': 1.5,
+                    stroke: 'steelblue',
+                    'clip-path': 'url(#clip)'
+                });
+        }
+
+        function styleAxisNodes(axisNodes, strokeWidth) {
+            axisNodes.selectAll('.domain')
+                .attr({
+                    fill: 'none',
+                    'stroke-width': strokeWidth,
+                    stroke: 'black'
+                });
+            axisNodes.selectAll('.tick line')
+                .attr({
+                    fill: 'none',
+                    'stroke-width': 1,
+                    stroke: 'black'
+                });
+        }
+    </script>
+</body>
+</html>

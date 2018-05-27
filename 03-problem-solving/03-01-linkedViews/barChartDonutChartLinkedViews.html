@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Select</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.5/d3-legend.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>	
+		<script
+			src="https://code.jquery.com/jquery-3.3.1.min.js"
+			integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+			crossorigin="anonymous"></script>		
+		<script
+			src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+			integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+			crossorigin="anonymous"></script>		
+		<script src="donutChart.js"></script> 
+		<style type="text/css">
+			body {
+				font-family: 'Arial', sans-serif;
+				color: #333333;
+			}
+
+			polyline{
+				opacity: .3;
+				stroke: black;
+				stroke-width: 2px;
+				fill: none;
+			}
+
+			.labelName tspan {
+				font-style: normal;
+				font-weight: 700;
+			}
+
+			.labelName {
+				font-size: 0.9em;
+				font-style: italic;
+			}	
+		</style>
+	</head>
+	<body>
+		<div id="barchart"></div>
+		<svg id="donut-chart"></div>
+		<div id="legend"></div>
+		<div >
+		  <h2>Checkbox</h2>
+			<form id="checkbox">
+			<fieldset>
+				<legend>Which fruit do you want to see?</legend>
+				<div class="checkbox column">
+					<input id="apple" type="checkbox" name="fruit" value="apple"/>
+					<label for="apple">Apple</label>
+					<input id="peach" type="checkbox" name="fruit" value="peach"/>
+					<label for="peach">Peach</label>
+					<input id="banana" type="checkbox" name="fruit" value="banana"/>
+					<label for="banana">Banana</label>
+					</div>
+					<input id="checkboxsubmit" type="button" value="Submit">
+					<input class="reset" type="button" value="Reset">
+			</fieldset>
+			</form>
+		</div>
+		<div>
+ 		  <h2>Radio Buttons</h2>
+			<form id="radio">
+			  <fieldset>
+				<legend>Which fruit do you want to see?</legend>
+				<div class="radio row">
+					<input id="apple" type="radio" name="fruit" value="apple"/>
+					<label for="apple">Apple</label>
+					<input id="peach" type="radio" name="fruit" value="peach"/>
+					<label for="peach">Peach</label>
+					<input id="banana" type="radio" name="fruit" value="banana"/>
+					<label for="banana">Banana</label>
+					</div>
+					<input id="radiosubmit" type="button" value="Submit">
+					<input class="reset" type="button" value="Reset">
+				</div>
+			  </fieldset>
+		</div>
+
+		<div>
+ 		  <h2>Select list</h2>
+			<form id="select">
+			<label for="fruitselect">Choose a fruit </label>
+			<select id="fruitselect" name="fruitselect" onchange="selectlist()">
+			  <option id="resetvalue" label=" " disabled selected> </option>
+			  <option label="apple">apple</option>
+			  <option label="peach">peach</option>
+			  <option label="banana">banana</option>
+			</select>
+			<input class="reset" type="button" value="Reset">
+		</div>
+		
+		<script type="text/javascript">
+			function filterandrender(values){
+				dataset2=_.filter(dataset,function(item){
+					return _.includes(values,item['category']);
+				})
+				render(dataset2);
+				d3.select("#donut-chart")
+					.datum(dataset2,key)
+					.call(donutChart)
+				}
+		
+			function checkbox(){
+				var value="";
+				$("#checkbox input:checked").each(function(){
+					value = value 
+							+ $(this).val() 
+				});
+				filterandrender(value);
+			}
+			
+			function radio(){
+				var value="";
+				value=$("#radio input:checked").val();
+				filterandrender(value);
+			}
+
+			function selectlist(){
+				var value="";
+				value=$("#fruitselect").val();
+				filterandrender(value);
+			}
+			
+			function reset(){
+				$('input[type="checkbox"]').prop('checked', false);
+				$('input[type="radio"]').prop('checked', false);
+				$('#fruitselect option').prop('selected', false);
+				$('#resetvalue').prop('selected',true);
+				render(dataset);
+			}
+			
+			function init(){
+				$("#checkboxsubmit").click(checkbox);
+				$("#radiosubmit").click(radio);
+				$(".reset").click(reset);
+			}
+			
+			window.onload = init;
+		
+
+			//Width and height
+			var w = 600;
+			var h = 250;
+			
+			var dataset = [ { key: 0, value: 5, category: "banana" },				{ key: 1, value: 10, category: "apple" },				{ key: 2, value: 13, category: "peach" }];
+
+	
+			var xScale = d3.scaleBand()
+							.domain(d3.range(dataset.length))
+							.rangeRound([0, w])
+							.paddingInner(0.05);
+
+			var yScale = d3.scaleLinear()
+							.domain([0, d3.max(dataset, function(d) {return d.value;})])
+							.range([0, h]);
+							
+			var categoryScale = d3.scaleOrdinal()
+							.domain(["apple","peach","banana"])
+							.range(["rgb(0, 204, 0)", "rgb(255, 153, 0)", "rgb(204, 204, 0)"]);
+
+			//Define key function, to be used when binding data
+			var key = function(d) {
+				return d.key;
+			};
+
+							
+			//Create SVG element
+			var svg = d3.select("#barchart")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+
+
+			function render(data){			
+				//Create bars
+				var rects = svg.selectAll("rect")
+				   .data(data, key);
+
+				rects
+					.exit()
+						.transition()
+						.duration(500)
+						.attr('y',h)
+						.remove();
+						
+				rects
+					.enter()
+					   .append("rect")
+					   .merge(rects)
+					   .transition()
+					   .duration(500)
+					   .attr("x", function(d, i) {
+							return xScale(i);
+					   })
+					   .attr("y", function(d) {
+							return h - yScale(d.value);
+					   })
+					   .attr("width", xScale.bandwidth())
+					   .attr("height", function(d) {
+							return yScale(d.value);
+					   })
+					   .attr("fill", function(d) {
+							return categoryScale(d.category);
+					   })
+					   .attr("class", function(d) {
+							return d.category;
+					   })
+			
+				
+
+				//Create labels
+				var texts = svg.selectAll("text")
+				   .data(data, key);
+				
+				texts
+					.exit()
+						.transition()
+						.duration(500)
+						.attr('y',h)
+						.remove();
+						
+						
+				texts
+				   .enter()
+				   .append("text")
+				   .merge(texts)
+				   .transition()
+				   .duration(500)
+				   .text(function(d) {
+						return d.value;
+				   })
+				   .attr("text-anchor", "middle")
+				   .attr("x", function(d, i) {
+						return xScale(i) + xScale.bandwidth() / 2;
+				   })
+				   .attr("y", function(d) {
+						return h - yScale(d.value) + 14;
+				   })
+				   .attr("font-family", "sans-serif")
+				   .attr("font-size", "11px");
+			}
+			
+			render(dataset);
+			
+			//Legend
+
+			var svglegend = d3.select("#legend")
+						.append("svg")
+						.attr("width", 250)
+						.attr("height", 70);
+
+			svglegend.append("g")
+			  .attr("class", "legendOrdinal")
+			  .attr("transform", "translate(20,20)");
+
+			var legendOrdinal = d3.legendColor()
+			  .shapeWidth(70)
+			  .orient('horizontal')
+			  .scale(categoryScale)
+
+			svglegend.select(".legendOrdinal")
+				.call(legendOrdinal);
+			
+
+			//donut
+			
+			var donutChart = donutChart() 
+				.width(700)
+				.height(400)
+				.cornerRadius(3) //slice corners 
+				.padAngle(0.015) // gap between slices
+				.variable("value")
+				.category("category")
+				.zScale(categoryScale);
+
+			
+		
+			 d3.select("#donut-chart")  //select the svg that will hold the chart
+				  .datum(dataset,key)		 //assign the data
+				  .call(donutChart);       //call the function generating the chart   	
+   
+				
+				
+		</script>
+	</body>
+</html>
