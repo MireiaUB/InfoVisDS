@@ -7,5 +7,5 @@ Mike Bostock set the fundamentals in his post:
 
 And you may find many examples on GitHub.
 
-In this GitHub branch I've posted examples of basic charts such as barChart,lineChart,scatterPlot and donutChart.
+In this GitHub branch I've posted examples of basic charts such as barChart,lineChart,scatterPlot and donutChart. Lately I've added Waffle chart, very useful for infographies
 
